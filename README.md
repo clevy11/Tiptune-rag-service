@@ -1,4 +1,15 @@
-# TipTune fine-tuning
+# TipTune support assistant
+
+## Current approach: RAG
+
+The primary implementation is a retrieval-augmented generation (RAG) backend:
+it retrieves current, reviewed TipTune support information from
+`knowledge_base/` and the existing `datasets/` support Q&A before asking a
+hosted model to reply. Start with
+[docs/rag_setup.md](docs/rag_setup.md).
+
+Fine-tuning material remains in this repository as a learning experiment, but
+it is not the recommended production source of TipTune product facts.
 
 This project fine-tunes a small open-weight chat model to write short, warm
 TipTune support replies for the TipTune website. It does **not** put secrets,
@@ -51,6 +62,27 @@ invalid conversation or likely character-encoding corruption. Repair and review
 the source answers first; do not blindly transform support policies. Once
 validation passes, the adapter and tokenizer are written to
 `outputs/tiptune-qlora/`.
+
+## Test the trained adapter
+
+Use the same GPU-enabled Jupyter kernel that trained the model. Run:
+
+```powershell
+python src/chat_with_adapter.py
+```
+
+Ask one question at a time; enter `quit` to end the session. Start with the
+prompts in [docs/evaluation_prompts.md](docs/evaluation_prompts.md). This is a
+manual quality check: do not put the adapter into the website until its answers
+are reviewed, especially for money, privacy, and unknown-policy questions.
+
+If the notebook says that 4-bit quantization needs `bitsandbytes`, run the
+following in a fresh cell, restart the Jupyter kernel, and run the test cell
+again:
+
+```python
+%pip install -U "bitsandbytes>=0.46.1"
+```
 
 ## Evaluation before website use
 
